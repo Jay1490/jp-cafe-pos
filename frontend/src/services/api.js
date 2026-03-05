@@ -8,14 +8,12 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// ─── Auth token injection ─────────────────────────────────────────────────────
 api.interceptors.request.use((config) => {
   const token = sessionStorage.getItem('cafe_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// ─── Auto-logout on 401 ──────────────────────────────────────────────────────
 api.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -27,36 +25,33 @@ api.interceptors.response.use(
   }
 );
 
-// ─── Auth ─────────────────────────────────────────────────────────────────────
 export const authAPI = {
-  login: (pin) => api.post('/auth/login', { pin }),
+  login:  (pin)   => api.post('/auth/login', { pin }),
   verify: (token) => api.post('/auth/verify', { token }),
 };
 
-// ─── Products ─────────────────────────────────────────────────────────────────
 export const productsAPI = {
   getAll: (params) => api.get('/products', { params }),
-  create: (data) => api.post('/products', data),
+  create: (data)   => api.post('/products', data),
   update: (id, data) => api.put(`/products/${id}`, data),
-  toggle: (id) => api.patch(`/products/${id}/toggle`),
-  delete: (id) => api.delete(`/products/${id}`),
+  toggle: (id)     => api.patch(`/products/${id}/toggle`),
+  delete: (id)     => api.delete(`/products/${id}`),
 };
 
-// ─── Orders ──────────────────────────────────────────────────────────────────
 export const ordersAPI = {
-  place: (data) => api.post('/orders', data),
-  getAll: (params) => api.get('/orders', { params }),
-  getSummary: (days) => api.get('/orders/summary', { params: { days } }),
-  getToday: () => api.get('/orders/today'),
-  getOne: (id) => api.get(`/orders/${id}`),
-  cancel: (id) => api.patch(`/orders/${id}/cancel`),
+  place:      (data)       => api.post('/orders', data),
+  edit:       (id, data)   => api.put(`/orders/${id}`, data),   // ← NEW
+  getAll:     (params)     => api.get('/orders', { params }),
+  getSummary: (days)       => api.get('/orders/summary', { params: { days } }),
+  getToday:   ()           => api.get('/orders/today'),
+  getOne:     (id)         => api.get(`/orders/${id}`),
+  cancel:     (id)         => api.patch(`/orders/${id}/cancel`),
 };
 
-// ─── Settings ─────────────────────────────────────────────────────────────────
 export const settingsAPI = {
   getPublic: () => api.get('/settings'),
-  getFull: () => api.get('/settings/full'),
-  update: (data) => api.put('/settings', data),
+  getFull:   () => api.get('/settings/full'),
+  update:    (data) => api.put('/settings', data),
 };
 
 export default api;

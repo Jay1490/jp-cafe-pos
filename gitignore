@@ -1,6 +1,14 @@
 backend/.env
 backend/node_modules/
+backend/server_old.js
+backend/routes/orders_old.js
+frontend/src/components/History_old.jsx
+frontend/src/services/api_old.js
+frontend/src/components/POS_old.jsx
+frontend/src/components/Settings_old.jsx
+frontend/src/components/Navbar_old.jsx
 frontend/node_modules/
+frontend/src/App_old.jsx
 frontend/dist/
 .DS_Store
 *.log

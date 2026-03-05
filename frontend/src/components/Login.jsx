@@ -115,10 +115,10 @@ export default function Login() {
               </button>
             ))}
           </div>
-
+{/* 
           <p style={{color:'rgba(201,169,110,0.4)',fontSize:11,marginTop:24}}>
             Default PIN: 1234 · Change in Settings
-          </p>
+          </p> */}
         </div>
       </div>
 

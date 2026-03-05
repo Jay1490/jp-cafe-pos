@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ordersAPI } from '../services/api';
 
@@ -11,38 +11,35 @@ const NAV_ITEMS = [
 
 const fc = (n) => `₹${Number(n).toFixed(0)}`;
 
-export default function Navbar({ view, onNav, revenueRefreshKey }) {
+export default function Navbar({ view, onNav }) {
   const { logout, cafeName } = useAuth();
   const [todayRevenue, setTodayRevenue] = useState(0);
-
-  // ✅ FIX 1: Refresh revenue whenever:
-  //   - view changes (switching tabs)
-  //   - revenueRefreshKey changes (passed from parent after order edit/place)
-  //   - every 30 seconds automatically
-  const loadRevenue = useCallback(async () => {
-    try {
-      const res = await ordersAPI.getToday();
-      setTodayRevenue(res.data.data.revenue);
-    } catch {}
-  }, []);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    loadRevenue();
-    const id = setInterval(loadRevenue, 30000);
+    const load = async () => {
+      try {
+        const res = await ordersAPI.getToday();
+        setTodayRevenue(res.data.data.revenue);
+      } catch {}
+    };
+    load();
+    const id = setInterval(load, 60000);
     return () => clearInterval(id);
-  }, [view, revenueRefreshKey, loadRevenue]);
+  }, [view]);
 
   return (
     <>
-      {/* ── Top Navbar (Desktop) ── */}
+      {/* Desktop Navbar */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-        background: '#3d1a00', height: 56,
+        background: '#3d1a00',
+        height: 56,
         display: 'flex', alignItems: 'center',
         padding: '0 16px',
         boxShadow: '0 3px 20px rgba(0,0,0,0.4)',
       }}>
-        {/* Logo — always visible */}
+        {/* Logo */}
         <div style={{
           fontFamily: "'Playfair Display', Georgia, serif",
           fontSize: 18, fontWeight: 700,
@@ -71,14 +68,13 @@ export default function Navbar({ view, onNav, revenueRefreshKey }) {
           ))}
         </div>
 
-        {/* Right side — revenue + logout */}
+        {/* Right side */}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* ✅ FIX 3: Revenue visible on mobile too (in top bar) */}
-          <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }} className="nav-revenue">
             <span style={{ fontSize: 15, fontWeight: 700, color: '#f5c842', lineHeight: 1 }}>{fc(todayRevenue)}</span>
             <span style={{ fontSize: 10, color: '#c9a96e' }}>Today</span>
           </div>
-          <button onClick={logout} className="nav-logout-btn" style={{
+          <button onClick={logout} className="nav-logout" style={{
             padding: '7px 12px', borderRadius: 8,
             border: '1px solid rgba(255,100,100,0.3)',
             background: 'rgba(255,70,70,0.1)',
@@ -90,7 +86,7 @@ export default function Navbar({ view, onNav, revenueRefreshKey }) {
         </div>
       </nav>
 
-      {/* ── Bottom Nav (Mobile only) ── */}
+      {/* Mobile Bottom Nav */}
       <nav className="mobile-nav" style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000,
         background: '#3d1a00',
@@ -120,21 +116,20 @@ export default function Navbar({ view, onNav, revenueRefreshKey }) {
           color: '#ff9999', borderTop: '2px solid transparent',
         }}>
           <span style={{ fontSize: 20 }}>🔒</span>
-          <span style={{ fontSize: 10, fontWeight: 600 }}>Out</span>
+          <span style={{ fontSize: 10, fontWeight: 600 }}>Logout</span>
         </button>
       </nav>
 
       <style>{`
         @media (max-width: 640px) {
           .nav-desktop { display: none !important; }
-          .nav-logout-btn { display: none !important; }
+          .nav-cafe-name { display: none; }
+          .nav-revenue { display: none !important; }
+          .nav-logout { display: none !important; }
           .mobile-nav { display: flex !important; }
-          /* ✅ FIX 3: Show café name + revenue on mobile top bar */
-          .nav-cafe-name { display: inline !important; font-size: 13px !important; letter-spacing: 2px !important; }
         }
         @media (min-width: 641px) {
           .mobile-nav { display: none !important; }
-          .nav-cafe-name { display: inline !important; }
         }
       `}</style>
     </>

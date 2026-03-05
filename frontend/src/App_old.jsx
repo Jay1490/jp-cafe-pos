@@ -10,10 +10,6 @@ import Settings from './components/Settings';
 export default function App() {
   const { isLoggedIn, loading } = useAuth();
   const [view, setView] = useState('pos');
-  // ✅ Increment this after any order place/edit to force Navbar revenue refresh
-  const [revenueRefreshKey, setRevenueRefreshKey] = useState(0);
-
-  const triggerRevenueRefresh = () => setRevenueRefreshKey(k => k + 1);
 
   if (loading) {
     return (
@@ -35,13 +31,25 @@ export default function App() {
   if (!isLoggedIn) return <Login />;
 
   return (
-    <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <Navbar view={view} onNav={setView} revenueRefreshKey={revenueRefreshKey} />
+    <div style={{
+      height: '100dvh',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+    }}>
+      <Navbar view={view} onNav={setView} />
 
-      <main style={{ flex: 1, overflow: 'hidden', marginTop: 56 }}>
+      {/* Main Content Area */}
+      <main style={{
+        flex: 1,
+        overflow: 'hidden',
+        // On mobile: account for bottom nav (56px), on desktop: top nav (56px)
+        marginTop: 56,
+        marginBottom: 0,
+      }}>
         <div style={{ height: '100%', overflow: 'hidden' }} className="main-content">
-          {view === 'pos'      && <POS onOrderPlaced={triggerRevenueRefresh} />}
-          {view === 'history'  && <History onOrderEdited={triggerRevenueRefresh} />}
+          {view === 'pos'      && <POS />}
+          {view === 'history'  && <History />}
           {view === 'products' && <Products />}
           {view === 'settings' && <Settings />}
         </div>
@@ -49,7 +57,10 @@ export default function App() {
 
       <style>{`
         @media (max-width: 640px) {
-          .main-content { margin-bottom: 56px; }
+          /* On mobile, bottom nav is 56px tall */
+          .main-content {
+            margin-bottom: 56px;
+          }
         }
       `}</style>
     </div>
